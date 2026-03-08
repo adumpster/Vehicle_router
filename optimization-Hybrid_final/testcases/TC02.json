@@ -1,0 +1,522 @@
+{
+  "employees": {
+    "E01": {
+      "priority": 1,
+      "pickup": {
+        "lat": 12.936,
+        "lng": 77.625
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "08:15",
+      "latest_drop": "09:15",
+      "vehicle_preference": "premium",
+      "sharing_preference": "single",
+      "distances": {
+        "drop": 7162.4,
+        "E02": 1305.8,
+        "E03": 3576.6,
+        "E04": 4181.4,
+        "E05": 4026,
+        "E06": 2420.3,
+        "E07": 3139.8,
+        "E08": 1276.7,
+        "E09": 3379.1,
+        "E10": 2132.5,
+        "E11": 4159.2,
+        "E12": 4459.6
+      }
+    },
+    "E02": {
+      "priority": 2,
+      "pickup": {
+        "lat": 12.931,
+        "lng": 77.621
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "08:30",
+      "latest_drop": "09:45",
+      "vehicle_preference": "any",
+      "sharing_preference": "double",
+      "distances": {
+        "drop": 9490.6,
+        "E01": 756,
+        "E03": 3047.6,
+        "E04": 4937.3,
+        "E05": 3143.8,
+        "E06": 3176.3,
+        "E07": 3325,
+        "E08": 2032.6,
+        "E09": 2496.9,
+        "E10": 2888.5,
+        "E11": 3277,
+        "E12": 5215.5
+      }
+    },
+    "E03": {
+      "priority": 3,
+      "pickup": {
+        "lat": 12.942,
+        "lng": 77.61
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "09:00",
+      "latest_drop": "10:30",
+      "vehicle_preference": "normal",
+      "sharing_preference": "triple",
+      "distances": {
+        "drop": 5102.9,
+        "E01": 2562.6,
+        "E02": 2839,
+        "E04": 6743.9,
+        "E05": 3948.1,
+        "E06": 3818.4,
+        "E07": 4993.9,
+        "E08": 3839.2,
+        "E09": 4056.3,
+        "E10": 4695.1,
+        "E11": 2434.2,
+        "E12": 5857.6
+      }
+    },
+    "E04": {
+      "priority": 2,
+      "pickup": {
+        "lat": 12.9605,
+        "lng": 77.6385
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "08:45",
+      "latest_drop": "10:00",
+      "vehicle_preference": "any",
+      "sharing_preference": "double",
+      "distances": {
+        "drop": 5866.2,
+        "E01": 4489.1,
+        "E02": 5051.9,
+        "E03": 7027.8,
+        "E05": 7772.1,
+        "E06": 4467.2,
+        "E07": 6844.2,
+        "E08": 3731.1,
+        "E09": 7125.2,
+        "E10": 1891.2,
+        "E11": 7905.3,
+        "E12": 1792
+      }
+    },
+    "E05": {
+      "priority": 4,
+      "pickup": {
+        "lat": 12.918,
+        "lng": 77.608
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "09:30",
+      "latest_drop": "11:00",
+      "vehicle_preference": "any",
+      "sharing_preference": "triple",
+      "distances": {
+        "drop": 9190.1,
+        "E01": 3893,
+        "E02": 3368.7,
+        "E03": 3846.6,
+        "E04": 8074.4,
+        "E06": 5734.9,
+        "E07": 4983.4,
+        "E08": 5169.7,
+        "E09": 1300.5,
+        "E10": 6025.5,
+        "E11": 2976.5,
+        "E12": 7774.1
+      }
+    },
+    "E06": {
+      "priority": 1,
+      "pickup": {
+        "lat": 12.952,
+        "lng": 77.622
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "08:00",
+      "latest_drop": "09:00",
+      "vehicle_preference": "premium",
+      "sharing_preference": "single",
+      "distances": {
+        "drop": 4994.2,
+        "E01": 2633.9,
+        "E02": 3196.7,
+        "E03": 4006.1,
+        "E04": 4574.1,
+        "E05": 5817.5,
+        "E07": 4989.1,
+        "E08": 1739.8,
+        "E09": 5270,
+        "E10": 3202.1,
+        "E11": 4375.3,
+        "E12": 2291.4
+      }
+    },
+    "E07": {
+      "priority": 3,
+      "pickup": {
+        "lat": 12.927,
+        "lng": 77.642
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "09:15",
+      "latest_drop": "10:45",
+      "vehicle_preference": "normal",
+      "sharing_preference": "double",
+      "distances": {
+        "drop": 11594.2,
+        "E01": 3846.5,
+        "E02": 3322.2,
+        "E03": 5151.2,
+        "E04": 6920.8,
+        "E05": 5167.5,
+        "E06": 5159.7,
+        "E08": 4016.1,
+        "E09": 4355.3,
+        "E10": 4872,
+        "E11": 5380.7,
+        "E12": 7199
+      }
+    },
+    "E08": {
+      "priority": 5,
+      "pickup": {
+        "lat": 12.941,
+        "lng": 77.631
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "10:00",
+      "latest_drop": "12:00",
+      "vehicle_preference": "any",
+      "sharing_preference": "triple",
+      "distances": {
+        "drop": 6623.5,
+        "E01": 1514.1,
+        "E02": 2076.9,
+        "E03": 4052.8,
+        "E04": 3627.9,
+        "E05": 4797.1,
+        "E06": 1739.8,
+        "E07": 3869.2,
+        "E09": 4150.1,
+        "E10": 1559.7,
+        "E11": 4930.3,
+        "E12": 3920.7
+      }
+    },
+    "E09": {
+      "priority": 2,
+      "pickup": {
+        "lat": 12.92,
+        "lng": 77.615
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "08:30",
+      "latest_drop": "09:45",
+      "vehicle_preference": "any",
+      "sharing_preference": "double",
+      "distances": {
+        "drop": 9195.5,
+        "E01": 2981.8,
+        "E02": 2457.4,
+        "E03": 2935.4,
+        "E04": 7163.2,
+        "E05": 1036.3,
+        "E06": 4823.6,
+        "E07": 4612.3,
+        "E08": 4258.4,
+        "E10": 5114.3,
+        "E11": 2981.9,
+        "E12": 6862.9
+      }
+    },
+    "E10": {
+      "priority": 4,
+      "pickup": {
+        "lat": 12.948,
+        "lng": 77.635
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "09:45",
+      "latest_drop": "11:30",
+      "vehicle_preference": "normal",
+      "sharing_preference": "triple",
+      "distances": {
+        "drop": 7691.6,
+        "E01": 2370,
+        "E02": 2932.8,
+        "E03": 4908.6,
+        "E04": 1825.3,
+        "E05": 5652.9,
+        "E06": 3202.1,
+        "E07": 4725.1,
+        "E08": 1559.7,
+        "E09": 5006,
+        "E11": 5786.2,
+        "E12": 1472.9
+      }
+    },
+    "E11": {
+      "priority": 3,
+      "pickup": {
+        "lat": 12.933,
+        "lng": 77.605
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "09:00",
+      "latest_drop": "10:30",
+      "vehicle_preference": "any",
+      "sharing_preference": "double",
+      "distances": {
+        "drop": 6770.1,
+        "E01": 4087.2,
+        "E02": 3562.8,
+        "E03": 2500.1,
+        "E04": 8268.6,
+        "E05": 3351.7,
+        "E06": 5304.9,
+        "E07": 5717.7,
+        "E08": 5363.9,
+        "E09": 2870.4,
+        "E10": 6219.7,
+        "E12": 7344.1
+      }
+    },
+    "E12": {
+      "priority": 1,
+      "pickup": {
+        "lat": 12.955,
+        "lng": 77.628
+      },
+      "drop": {
+        "lat": 12.9716,
+        "lng": 77.5946
+      },
+      "earliest_pickup": "08:15",
+      "latest_drop": "09:15",
+      "vehicle_preference": "premium",
+      "sharing_preference": "single",
+      "distances": {
+        "drop": 5003,
+        "E01": 4692.1,
+        "E02": 5254.9,
+        "E03": 6064.3,
+        "E04": 1723.4,
+        "E05": 7875.8,
+        "E06": 2280.2,
+        "E07": 7047.3,
+        "E08": 3909.5,
+        "E09": 7328.2,
+        "E10": 1472.9,
+        "E11": 6433.6
+      }
+    }
+  },
+  "vehicles": [
+    {
+      "vehicle_id": "V01",
+      "fuel_type": "electric",
+      "vehicle_type": "4W",
+      "capacity": 3,
+      "cost_per_km": 10,
+      "avg_speed_kmph": 30,
+      "current_lat": 12.935,
+      "current_lng": 77.62,
+      "available_from": 0.3333333333333333,
+      "category": "premium"
+    },
+    {
+      "vehicle_id": "V02",
+      "fuel_type": "petrol",
+      "vehicle_type": "4W",
+      "capacity": 4,
+      "cost_per_km": 14,
+      "avg_speed_kmph": 35,
+      "current_lat": 12.92,
+      "current_lng": 77.61,
+      "available_from": 0.3333333333333333,
+      "category": "normal"
+    },
+    {
+      "vehicle_id": "V03",
+      "fuel_type": "diesel",
+      "vehicle_type": "van",
+      "capacity": 6,
+      "cost_per_km": 18,
+      "avg_speed_kmph": 32,
+      "current_lat": 12.95,
+      "current_lng": 77.63,
+      "available_from": 0.3333333333333333,
+      "category": "normal"
+    },
+    {
+      "vehicle_id": "V04",
+      "fuel_type": "electric",
+      "vehicle_type": "4W",
+      "capacity": 3,
+      "cost_per_km": 11,
+      "avg_speed_kmph": 28,
+      "current_lat": 12.94,
+      "current_lng": 77.64,
+      "available_from": 0.34375,
+      "category": "premium"
+    },
+    {
+      "vehicle_id": "V05",
+      "fuel_type": "petrol",
+      "vehicle_type": "2W",
+      "capacity": 1,
+      "cost_per_km": 8,
+      "avg_speed_kmph": 40,
+      "current_lat": 12.925,
+      "current_lng": 77.6,
+      "available_from": 0.3333333333333333,
+      "category": "normal"
+    }
+  ],
+  "baseline": [
+    {
+      "employee_id": "E01",
+      "baseline_cost": 430,
+      "baseline_time_min": 45
+    },
+    {
+      "employee_id": "E02",
+      "baseline_cost": 390,
+      "baseline_time_min": 50
+    },
+    {
+      "employee_id": "E03",
+      "baseline_cost": 370,
+      "baseline_time_min": 55
+    },
+    {
+      "employee_id": "E04",
+      "baseline_cost": 410,
+      "baseline_time_min": 48
+    },
+    {
+      "employee_id": "E05",
+      "baseline_cost": 460,
+      "baseline_time_min": 60
+    },
+    {
+      "employee_id": "E06",
+      "baseline_cost": 440,
+      "baseline_time_min": 44
+    },
+    {
+      "employee_id": "E07",
+      "baseline_cost": 395,
+      "baseline_time_min": 58
+    },
+    {
+      "employee_id": "E08",
+      "baseline_cost": 380,
+      "baseline_time_min": 65
+    },
+    {
+      "employee_id": "E09",
+      "baseline_cost": 400,
+      "baseline_time_min": 50
+    },
+    {
+      "employee_id": "E10",
+      "baseline_cost": 450,
+      "baseline_time_min": 62
+    },
+    {
+      "employee_id": "E11",
+      "baseline_cost": 385,
+      "baseline_time_min": 53
+    },
+    {
+      "employee_id": "E12",
+      "baseline_cost": 435,
+      "baseline_time_min": 45
+    }
+  ],
+  "metadata": [
+    {
+      "key": "test_case_id",
+      "value": "TC_02"
+    },
+    {
+      "key": "city",
+      "value": "Bengaluru"
+    },
+    {
+      "key": "distance_method",
+      "value": "haversine"
+    },
+    {
+      "key": "allow_external_maps",
+      "value": true
+    },
+    {
+      "key": "priority_1_max_delay_min",
+      "value": 5
+    },
+    {
+      "key": "priority_2_max_delay_min",
+      "value": 10
+    },
+    {
+      "key": "priority_3_max_delay_min",
+      "value": 15
+    },
+    {
+      "key": "priority_4_max_delay_min",
+      "value": 20
+    },
+    {
+      "key": "priority_5_max_delay_min",
+      "value": 30
+    },
+    {
+      "key": "objective_cost_weight",
+      "value": 0.65
+    },
+    {
+      "key": "objective_time_weight",
+      "value": 0.35
+    }
+  ]
+}

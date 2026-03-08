@@ -1,0 +1,12 @@
+//if using g++ compiler{
+cmake -S . -B build
+}
+//if using mingw{
+cmake -S . -B build -G "MinGW Makefiles"
+}
+//configure the build{ 
+cmake --build build -j
+}
+to run the .exe file{
+    .\build\velora.exe .\testcases\TC04.json .\results\TC04_output.json
+}

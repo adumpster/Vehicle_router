@@ -1,0 +1,173 @@
+{
+ "input":{
+  "employees": {
+    "E01": {
+      "priority": 1,
+      "pickup": { "lat": 12.935, "lng": 77.625 },
+      "drop":   { "lat": 12.9716, "lng": 77.5946 },
+      "earliest_pickup": "08:00",
+      "latest_drop": "09:00",
+      "vehicle_preference": "any",
+      "sharing_preference": "single",
+      "distances": {}
+    },
+    "E02": {
+      "priority": 2,
+      "pickup": { "lat": 12.930, "lng": 77.620 },
+      "drop":   { "lat": 12.9716, "lng": 77.5946 },
+      "earliest_pickup": "08:15",
+      "latest_drop": "09:30",
+      "vehicle_preference": "any",
+      "sharing_preference": "single",
+      "distances": {}
+    },
+    "E03": {
+      "priority": 3,
+      "pickup": { "lat": 12.920, "lng": 77.610 },
+      "drop":   { "lat": 12.9716, "lng": 77.5946 },
+      "earliest_pickup": "11:00",
+      "latest_drop": "12:30",
+      "vehicle_preference": "any",
+      "sharing_preference": "double",
+      "distances": {}
+    },
+    "E04": {
+      "priority": 3,
+      "pickup": { "lat": 12.925, "lng": 77.615 },
+      "drop":   { "lat": 12.9716, "lng": 77.5946 },
+      "earliest_pickup": "11:00",
+      "latest_drop": "12:30",
+      "vehicle_preference": "any",
+      "sharing_preference": "double",
+      "distances": {}
+    },
+    "E05": {
+      "priority": 4,
+      "pickup": { "lat": 12.940, "lng": 77.630 },
+      "drop":   { "lat": 12.9716, "lng": 77.5946 },
+      "earliest_pickup": "08:30",
+      "latest_drop": "10:00",
+      "vehicle_preference": "any",
+      "sharing_preference": "triple",
+      "distances": {}
+    },
+    "E06": {
+      "priority": 4,
+      "pickup": { "lat": 12.945, "lng": 77.628 },
+      "drop":   { "lat": 12.9716, "lng": 77.5946 },
+      "earliest_pickup": "08:30",
+      "latest_drop": "10:00",
+      "vehicle_preference": "any",
+      "sharing_preference": "triple",
+      "distances": {}
+    }
+  },
+  "vehicles": [
+    {
+      "vehicle_id": "V01",
+      "fuel_type": "petrol",
+      "vehicle_type": "4W",
+      "capacity": 3,
+      "cost_per_km": 12,
+      "avg_speed_kmph": 30,
+      "current_lat": 12.935,
+      "current_lng": 77.620,
+      "available_from": "08:00",
+      "category": "normal"
+    }
+  ],
+  "baseline": [
+    { "employee_id": "E01", "baseline_cost": 400, "baseline_time_min": 40 },
+    { "employee_id": "E02", "baseline_cost": 380, "baseline_time_min": 45 },
+    { "employee_id": "E03", "baseline_cost": 450, "baseline_time_min": 55 },
+    { "employee_id": "E04", "baseline_cost": 420, "baseline_time_min": 50 },
+    { "employee_id": "E05", "baseline_cost": 350, "baseline_time_min": 48 },
+    { "employee_id": "E06", "baseline_cost": 340, "baseline_time_min": 46 }
+  ],
+  "metadata": [
+    { "key": "test_case_id", "value": "TC_HACK_FINAL" },
+    { "key": "city", "value": "Bengaluru" },
+    { "key": "distance_method", "value": "haversine" }
+  ]
+},
+  "summary": {
+    "total_employees": 6,
+    "employees_routed": 6,
+    "employees_unrouted": 0,
+    "total_baseline_cost": 2340.000000,
+    "total_optimized_cost": 444.904874,
+    "net_savings": 1895.095126,
+    "savings_percentage": 80.986971
+  },
+  "unrouted_employees": [
+
+  ],
+  "vehicles": [
+    {
+      "vehicle_id": "V01",
+      "category": "normal",
+      "capacity": 3.000000,
+      "speed_kmh": 30.000000,
+      "cost_per_km": 12.000000,
+      "total_cost": 444.904874,
+      "trips": [
+        {
+          "trip_number": 1,
+          "load": 1,
+          "capacity_limit": 1,
+          "start_time": "08:00",
+          "end_time": "08:13",
+          "trip_distance_km": 5.777819,
+          "trip_cost": 46.800295,
+          "route": ["START", "E01", "END"],
+          "passengers": [            {"employee_id": "E01", "pickup_time": "08:03", "drop_time": "08:13"}]
+        },
+        {
+          "trip_number": 2,
+          "load": 1,
+          "capacity_limit": 1,
+          "start_time": "08:13",
+          "end_time": "08:37",
+          "trip_distance_km": 10.765404,
+          "trip_cost": 87.110910,
+          "route": ["START", "E02", "END"],
+          "passengers": [            {"employee_id": "E02", "pickup_time": "08:26", "drop_time": "08:37"}]
+        },
+        {
+          "trip_number": 3,
+          "load": 2,
+          "capacity_limit": 2,
+          "start_time": "08:37",
+          "end_time": "11:18",
+          "trip_distance_km": 12.385376,
+          "trip_cost": 153.574705,
+          "route": ["START", "E04", "E03", "END"],
+          "passengers": [            {"employee_id": "E04", "pickup_time": "11:02", "drop_time": "11:18"},
+            {"employee_id": "E03", "pickup_time": "11:06", "drop_time": "11:18"}]
+        },
+        {
+          "trip_number": 4,
+          "load": 1,
+          "capacity_limit": 3,
+          "start_time": "11:18",
+          "end_time": "11:36",
+          "trip_distance_km": 9.348378,
+          "trip_cost": 74.508324,
+          "route": ["START", "E06", "END"],
+          "passengers": [            {"employee_id": "E06", "pickup_time": "11:27", "drop_time": "11:36"}]
+        },
+        {
+          "trip_number": 5,
+          "load": 1,
+          "capacity_limit": 3,
+          "start_time": "11:36",
+          "end_time": "11:56",
+          "trip_distance_km": 10.404256,
+          "trip_cost": 82.910640,
+          "route": ["START", "E05", "END"],
+          "passengers": [            {"employee_id": "E05", "pickup_time": "11:46", "drop_time": "11:56"}]
+        }
+      ]
+    }
+  ]
+}
