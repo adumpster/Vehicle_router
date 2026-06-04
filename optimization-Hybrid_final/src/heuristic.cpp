@@ -80,7 +80,7 @@ static bool simulate_insertion_and_check(
     for (int i = insert_before_idx; i < (int)route.stops.size(); i++)
         out_stops.push_back(route.stops[i]);
 
-    const int SERVICE_PICKUP_MIN = 2;
+    // const int SERVICE_PICKUP_MIN = 2;
 
     // START times are fixed by the vehicle's availability.
     out_stops[0].arrival_time = route.stops[0].arrival_time;
@@ -115,7 +115,7 @@ static bool simulate_insertion_and_check(
             const Employee &ei = *it->second;
             // Respect earliest pickup (ready time): wait if early.
             out_stops[i].begin_service = max(arrival, ei.ready_time);
-            out_stops[i].departure_time = out_stops[i].begin_service + SERVICE_PICKUP_MIN;
+            out_stops[i].departure_time = out_stops[i].begin_service + SERVICE_MIN;
 
             // cout << "[DEBUG] " << ei.id << ": arrival=" << arrival
             //      << ", ready=" << ei.ready_time
@@ -209,14 +209,12 @@ bool check_compatibility(const Vehicle &v, const Employee &e, const Route &route
     // Hard: vehicle category must match preference.
     if (e.veh_pref == PREMIUM && v.category != PREMIUM)
         return false;
-    
 
     // Sharing cap comes only from SINGLE preference;
     // DOUBLE/TRIPLE/ANY employees impose no numeric seat restriction.
     int emp_limit = (int)v.capacity; // default: full vehicle
     if (e.share_pref == SINGLE)
         emp_limit = 1;
-    
 
     // route.max_capacity already encodes any SINGLE passenger already on board
     // (set to 1 when the first SINGLE employee joined).
@@ -299,11 +297,12 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
         // ── Phase 1: scan ALL routes, collect best c1 per route ──────────────
         // We need all per-route best-c1 values together before we can compute
         // a meaningful global regret (best vs second-best across routes).
-        struct RouteFeasibility {
-            int    v_idx;
-            int    r_idx;
-            int    insert_pos;   // best insert_before_idx for this route
-            double best_c1;      // lowest c1 found across all positions in this route
+        struct RouteFeasibility
+        {
+            int v_idx;
+            int r_idx;
+            int insert_pos; // best insert_before_idx for this route
+            double best_c1; // lowest c1 found across all positions in this route
         };
         vector<RouteFeasibility> feasible_routes;
 
@@ -326,7 +325,7 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
                 }
 
                 double best_c1_this_route = INF;
-                int    best_insert_before_this_route = -1;
+                int best_insert_before_this_route = -1;
 
                 for (int insert_before_idx = 1;
                      insert_before_idx <= (int)route.stops.size() - 1;
@@ -335,14 +334,14 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
                     vector<Stop> cand;
                     string why;
                     if (!simulate_insertion_and_check(route, emps[emp_idx],
-                            insert_before_idx, veh.speed_kmh, emp_by_id, cand, why))
+                                                      insert_before_idx, veh.speed_kmh, emp_by_id, cand, why))
                         continue;
 
                     const double c1_val = calc_c1(route, emps[emp_idx],
                                                   insert_before_idx, veh.speed_kmh);
                     if (c1_val < best_c1_this_route)
                     {
-                        best_c1_this_route          = c1_val;
+                        best_c1_this_route = c1_val;
                         best_insert_before_this_route = insert_before_idx;
                     }
                 }
@@ -358,14 +357,14 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
         // global_best   = cheapest insertion cost across all routes
         // global_second = second-cheapest insertion cost across all routes
         // regret        = how much worse off emp is if the best route is unavailable
-        double global_best   = INF;
+        double global_best = INF;
         double global_second = INF;
         for (const auto &rf : feasible_routes)
         {
             if (rf.best_c1 < global_best)
             {
                 global_second = global_best;
-                global_best   = rf.best_c1;
+                global_best = rf.best_c1;
             }
             else if (rf.best_c1 < global_second)
             {
@@ -383,10 +382,10 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
 
             Stop u;
             u.emp_id = emps[emp_idx].id;
-            u.loc    = emps[emp_idx].pickup;
+            u.loc = emps[emp_idx].pickup;
             u.is_pickup = true;
 
-            const double d_0u  = get_dist(route.stops.front(), u);
+            const double d_0u = get_dist(route.stops.front(), u);
             const double c2_val = LAMBDA * d_0u - rf.best_c1 + 0.5 * regret;
 
             if (debug)
@@ -400,10 +399,10 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
 
             if (c2_val > best_c2)
             {
-                best_c2          = c2_val;
+                best_c2 = c2_val;
                 best_vehicle_idx = rf.v_idx;
-                best_route_idx   = rf.r_idx;
-                best_insert_pos  = rf.insert_pos;
+                best_route_idx = rf.r_idx;
+                best_insert_pos = rf.insert_pos;
             }
         }
 
@@ -436,7 +435,7 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
             route.total_distance = recompute_distance_km(route.stops);
             {
                 int t = route.stops.back().arrival_time - route.stops.front().departure_time;
-                route.total_cost = W_COST * (route.total_distance * veh.cost_per_km) + W_TIME * (t);
+                route.total_cost = calc_route_cost(route.total_distance, veh.cost_per_km, t);
             }
             // Vehicle becomes available again at office (END).
             veh.available_time = route.stops.back().arrival_time;
@@ -473,7 +472,7 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
                     continue;
                 if (emps[emp_idx].veh_pref == PREMIUM && v.category != PREMIUM)
                     continue;
-                
+
                 //
                 // Create new route (Trip #2+): must start from OFFICE.
                 Route new_route;
@@ -506,7 +505,7 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
                 new_route.total_distance = recompute_distance_km(new_route.stops);
                 {
                     int t = new_route.stops.back().arrival_time - new_route.stops.front().departure_time;
-                    new_route.total_cost = W_COST * (new_route.total_distance * v.cost_per_km) + W_TIME * (t );
+                    new_route.total_cost = calc_route_cost(new_route.total_distance, v.cost_per_km, t);
                 }
 
                 v.available_time = new_route.stops.back().departure_time;
@@ -540,7 +539,7 @@ void solve_solomon_insertion(vector<Employee> &emps, vector<Vehicle> &vehs, bool
             r.total_distance = recompute_distance_km(r.stops);
             {
                 int t = r.stops.back().arrival_time - r.stops.front().departure_time;
-                r.total_cost = W_COST * (r.total_distance * v.cost_per_km) + W_TIME * (t);
+                r.total_cost = calc_route_cost(r.total_distance, v.cost_per_km, t);
             }
             if (r.stops.size() > 1)
                 v.total_cost += r.total_cost;

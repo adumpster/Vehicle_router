@@ -270,61 +270,12 @@ bool load_from_json_keep_root(
     buffer << in.rdbuf();
     std::string text = buffer.str();
 
-    out_root = mini_json::parse(text); // <-- keep full input JSON
-
-    // now reuse your existing extraction logic, but reading from out_root
-    const auto &data = out_root;
+    out_root = mini_json::parse(text);
 
     emps.clear();
     vehs.clear();
 
-    const auto &j_emps = data["employees"];
-    if (!j_emps.is_array())
-        return false;
-
-    for (const auto &je : j_emps.arr)
-    {
-        Employee e;
-        e.id = je["id"].as_string();
-        e.priority = je["priority"].as_int(0);
-        e.pickup.lat = je["pickup"]["lat"].as_number();
-        e.pickup.lng = je["pickup"]["lng"].as_number();
-        e.drop.lat = je["drop"]["lat"].as_number();
-        e.drop.lng = je["drop"]["lng"].as_number();
-        e.ready_time = parse_time(je["ready_time"].as_string());
-        e.due_time = parse_time(je["due_time"].as_string());
-        e.veh_pref = parse_vehicle_category(je["vehicle_pref"].as_string());
-        e.share_pref = parse_sharing_pref(je["share_pref"].as_string());
-        e.is_routed = false;
-        e.baseline_cost = je["baseline_cost"].as_number(0.0);
-        emps.push_back(e);
-    }
-
-    if (!emps.empty())
-        OFFICE = emps[0].drop;
-
-    const auto &j_vehs = data["vehicles"];
-    if (!j_vehs.is_array())
-        return false;
-
-    for (const auto &jv : j_vehs.arr)
-    {
-        Vehicle v;
-        v.id = jv["id"].as_string();
-        v.capacity = jv["capacity"].as_number();
-        v.cost_per_km = jv["cost_per_km"].as_number();
-        v.speed_kmh = jv["speed_kmh"].as_number();
-        v.category = parse_vehicle_category(jv["category"].as_string());
-        v.available_time = parse_time(jv["available_time"].as_string());
-        v.depot_loc.lat = jv["start"]["lat"].as_number();
-        v.depot_loc.lng = jv["start"]["lng"].as_number();
-        v.current_loc = v.depot_loc;
-        v.total_cost = 0.0;
-        v.routes.clear();
-        vehs.push_back(v);
-    }
-
-    return true;
+    return load_from_json(filename, emps, vehs);
 }
 
 // Feasibility check by full resimulation after inserting (pickup, drop) after stop index `after_idx`.
