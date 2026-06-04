@@ -21,3 +21,27 @@ extern Location OFFICE;
 
 // Filled during solve to explain WHY someone could not be routed.
 extern std::map<std::string, std::string> g_unrouted_reason;
+// --- ADDED GLOBAL CONFIGURATIONS ---
+extern const int SERVICE_MIN;
+
+// Unified objective cost formula for all modules
+inline double calc_route_cost(double dist_km, double cost_per_km, int time_min)
+{
+    return W_COST * (dist_km * cost_per_km) + W_TIME * time_min;
+}
+
+// Unified sharing preference limits (HYBRID: Only Single is strict)
+inline int get_global_share_limit(SharingPref p)
+{
+    switch (p)
+    {
+    case SINGLE:
+        return 1;
+    case DOUBLE:
+        return 999;
+    case TRIPLE:
+        return 999;
+    default:
+        return 999;
+    }
+}

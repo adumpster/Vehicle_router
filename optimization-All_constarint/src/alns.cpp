@@ -39,7 +39,7 @@ using std::vector;
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
-static const int SERVICE_MIN = 2;
+// static const int SERVICE_MIN = 2;
 static const double BIG_M = 1e7;
 static const int SEGMENT_LEN = 100;
 static const double RHO = 0.18;
@@ -68,20 +68,20 @@ static EmpLookup build_lookup(const vector<Employee> &employees)
 // ─────────────────────────────────────────────────────────────────────────────
 // Sharing / vehicle helpers
 // ─────────────────────────────────────────────────────────────────────────────
-static int sharing_limit(SharingPref p)
-{
-    switch (p)
-    {
-    case SINGLE:
-        return 1;
-    case DOUBLE:
-        return 2;
-    case TRIPLE:
-        return 3;
-    default:
-        return 999;
-    }
-}
+// static int get_global_share_limit(SharingPref p)
+// {
+//     switch (p)
+//     {
+//     case SINGLE:
+//         return 1;
+//     case DOUBLE:
+//         return 2;
+//     case TRIPLE:
+//         return 3;
+//     default:
+//         return 999;
+//     }
+// }
 
 static bool vehicle_ok(const Vehicle &v, const Employee &e)
 {
@@ -130,8 +130,8 @@ static bool simulate_route(Route &route, const Vehicle &veh,
         if (e.veh_pref == PREMIUM && veh.category != PREMIUM)
             return false;
         if (e.veh_pref == NORMAL && veh.category == PREMIUM)
-        return false;
-        share_cap = std::min(share_cap, sharing_limit(e.share_pref));
+            return false;
+        share_cap = std::min(share_cap, get_global_share_limit(e.share_pref));
         s.loc = e.pickup;
         s.is_pickup = true;
     }
@@ -189,7 +189,7 @@ static bool simulate_route(Route &route, const Vehicle &veh,
     route.total_distance = dist_total;
     {
         int t = route.stops.back().arrival_time - route.stops.front().departure_time;
-        route.total_cost = W_COST * (dist_total * veh.cost_per_km) + W_TIME * (t * veh.cost_per_km);
+        route.total_cost = calc_route_cost(dist_total, veh.cost_per_km, t);
     }
     return true;
 }
@@ -201,13 +201,13 @@ static bool simulate_route(Route &route, const Vehicle &veh,
 // ─────────────────────────────────────────────────────────────────────────────
 static double best_insert(Route &route, const Vehicle &veh,
                           const Employee &emp,
-                          
+
                           const EmpLookup &by_id)
 {
     int n = (int)route.stops.size();
     double base_cost = route.total_cost;
     double best_cost = std::numeric_limits<double>::infinity();
-    Route  best_cand;          // store entire winning route — no re-simulation needed
+    Route best_cand; // store entire winning route — no re-simulation needed
 
     for (int pos = 1; pos <= n - 1; pos++)
     {
@@ -223,7 +223,7 @@ static double best_insert(Route &route, const Vehicle &veh,
         if (cand.total_cost < best_cost)
         {
             best_cost = cand.total_cost;
-            best_cand = std::move(cand);   // save — avoids commit re-simulation
+            best_cand = std::move(cand); // save — avoids commit re-simulation
         }
     }
 
@@ -232,7 +232,7 @@ static double best_insert(Route &route, const Vehicle &veh,
 
     // Narrow stored cap then commit directly — zero extra simulate_route calls
     best_cand.max_capacity = std::min(best_cand.max_capacity,
-                                      sharing_limit(emp.share_pref));
+                                      get_global_share_limit(emp.share_pref));
     route = std::move(best_cand);
     return route.total_cost - base_cost;
 }
@@ -251,7 +251,7 @@ static void recompute_max_capacity(Route &route, const Vehicle &veh,
             continue;
         auto it = by_id.find(s.emp_id);
         if (it != by_id.end())
-            cap = std::min(cap, sharing_limit(it->second->share_pref));
+            cap = std::min(cap, get_global_share_limit(it->second->share_pref));
     }
     route.max_capacity = cap;
 }
@@ -282,7 +282,8 @@ static bool remove_from_route(Route &route, const Vehicle &veh,
 // ─────────────────────────────────────────────────────────────────────────────
 static bool routes_time_overlap(const Route &a, const Route &b)
 {
-    if (a.stops.size() < 2 || b.stops.size() < 2) return false;
+    if (a.stops.size() < 2 || b.stops.size() < 2)
+        return false;
     int a_s = a.stops.front().departure_time;
     int a_e = a.stops.back().arrival_time;
     int b_s = b.stops.front().departure_time;
@@ -293,10 +294,14 @@ static bool routes_time_overlap(const Route &a, const Route &b)
 
 static bool vehicle_has_trip_overlap(const Vehicle &v)
 {
-    for (int i = 0; i < (int)v.routes.size(); i++) {
-        if (v.routes[i].stops.size() < 2) continue;
-        for (int j = i + 1; j < (int)v.routes.size(); j++) {
-            if (v.routes[j].stops.size() < 2) continue;
+    for (int i = 0; i < (int)v.routes.size(); i++)
+    {
+        if (v.routes[i].stops.size() < 2)
+            continue;
+        for (int j = i + 1; j < (int)v.routes.size(); j++)
+        {
+            if (v.routes[j].stops.size() < 2)
+                continue;
             if (routes_time_overlap(v.routes[i], v.routes[j]))
                 return true;
         }
@@ -308,10 +313,14 @@ static bool vehicle_has_trip_overlap(const Vehicle &v)
 // would cause any temporal overlap with the vehicle's other routes.
 static bool would_overlap(const vector<Route> &routes, int ri, const Route &cand)
 {
-    for (int j = 0; j < (int)routes.size(); j++) {
-        if (j == ri) continue;
-        if (routes[j].stops.size() < 2) continue;
-        if (routes_time_overlap(cand, routes[j])) return true;
+    for (int j = 0; j < (int)routes.size(); j++)
+    {
+        if (j == ri)
+            continue;
+        if (routes[j].stops.size() < 2)
+            continue;
+        if (routes_time_overlap(cand, routes[j]))
+            return true;
     }
     return false;
 }
@@ -481,12 +490,16 @@ static vector<string> destroy_shaw(const vector<Employee> &emps,
     return out;
 }
 
-static vector<string> destroy_worst(const vector<Employee> &/*emps*/,
+static vector<string> destroy_worst(const vector<Employee> & /*emps*/,
                                     vector<Vehicle> vehs_copy,
                                     int q, std::mt19937 &rng,
                                     const EmpLookup &by_id)
 {
-    struct Cand { string id; double gain; };
+    struct Cand
+    {
+        string id;
+        double gain;
+    };
     vector<Cand> scored;
 
     for (int vi = 0; vi < (int)vehs_copy.size(); vi++)
@@ -512,7 +525,8 @@ static vector<string> destroy_worst(const vector<Employee> &/*emps*/,
     }
 
     std::sort(scored.begin(), scored.end(),
-              [](const Cand &a, const Cand &b){ return a.gain > b.gain; });
+              [](const Cand &a, const Cand &b)
+              { return a.gain > b.gain; });
 
     std::uniform_real_distribution<double> U(0.0, 1.0);
     const double p = 3.0;
@@ -590,10 +604,12 @@ static bool insert_anywhere(vector<Employee> &emps, vector<Vehicle> &vehs,
         {
             Route cand = vehs[vi].routes[ri];
             double delta = best_insert(cand, vehs[vi], emp, by_id);
-            if (!std::isfinite(delta)) continue;
+            if (!std::isfinite(delta))
+                continue;
             // Reject if inserting into this route would cause a temporal
             // overlap with any other trip already on the same vehicle.
-            if (would_overlap(vehs[vi].routes, ri, cand)) continue;
+            if (would_overlap(vehs[vi].routes, ri, cand))
+                continue;
             if (delta < best_delta)
             {
                 best_delta = delta;
@@ -628,7 +644,7 @@ static bool insert_anywhere(vector<Employee> &emps, vector<Vehicle> &vehs,
         if (!vehicle_ok(v, emp))
             continue;
         Route r;
-        r.max_capacity = std::min((int)v.capacity, sharing_limit(emp.share_pref));
+        r.max_capacity = std::min((int)v.capacity, get_global_share_limit(emp.share_pref));
         r.current_capacity = 0;
         r.total_distance = r.total_cost = 0.0;
         Stop st;
@@ -699,9 +715,9 @@ static void repair_regret_k(vector<Employee> &emps, vector<Vehicle> &vehs,
         double best_regret = -std::numeric_limits<double>::infinity();
 
         // For the winner: remember best insertion so we can commit without re-scan
-        int   winner_vi = -1, winner_ri = -1;
+        int winner_vi = -1, winner_ri = -1;
         Route winner_route;
-        bool  winner_needs_new_trip = false;
+        bool winner_needs_new_trip = false;
 
         for (const auto &id : remaining)
         {
@@ -710,7 +726,12 @@ static void repair_regret_k(vector<Employee> &emps, vector<Vehicle> &vehs,
                 continue;
 
             // Single scan: collect all (delta, vi, ri, committed_route) tuples
-            struct Slot { double delta; int vi, ri; Route route; };
+            struct Slot
+            {
+                double delta;
+                int vi, ri;
+                Route route;
+            };
             vector<Slot> slots;
 
             for (int vi = 0; vi < (int)vehs.size(); vi++)
@@ -736,7 +757,8 @@ static void repair_regret_k(vector<Employee> &emps, vector<Vehicle> &vehs,
             {
                 // Sort by delta to find best and k-th best
                 std::sort(slots.begin(), slots.end(),
-                          [](const Slot &a, const Slot &b){ return a.delta < b.delta; });
+                          [](const Slot &a, const Slot &b)
+                          { return a.delta < b.delta; });
                 double bst = slots[0].delta;
                 double kth = slots[std::min(k - 1, (int)slots.size() - 1)].delta;
                 reg = (kth - bst) + (5.0 - emp->priority) * 10.0;
@@ -744,13 +766,13 @@ static void repair_regret_k(vector<Employee> &emps, vector<Vehicle> &vehs,
 
             if (reg > best_regret)
             {
-                best_regret           = reg;
-                best_id               = id;
+                best_regret = reg;
+                best_id = id;
                 winner_needs_new_trip = slots.empty();
                 if (!slots.empty())
                 {
-                    winner_vi    = slots[0].vi;
-                    winner_ri    = slots[0].ri;
+                    winner_vi = slots[0].vi;
+                    winner_ri = slots[0].ri;
                     winner_route = std::move(slots[0].route);
                 }
             }
@@ -769,9 +791,10 @@ static void repair_regret_k(vector<Employee> &emps, vector<Vehicle> &vehs,
                 refresh_vehicle(vehs[winner_vi]);
                 const auto &last = vehs[winner_vi].routes[winner_ri].stops.back();
                 vehs[winner_vi].available_time = last.arrival_time;
-                vehs[winner_vi].current_loc    = last.loc;
+                vehs[winner_vi].current_loc = last.loc;
                 Employee *ep = find_emp(emps, best_id);
-                if (ep) ep->is_routed = true;
+                if (ep)
+                    ep->is_routed = true;
             }
             else
             {
@@ -855,16 +878,27 @@ static bool relocate_pass(vector<Employee> &emps, vector<Vehicle> &vehs,
                 // For same-vehicle moves (dvi==src_vi), compare against src_without
                 // (the source after removal) rather than the original route.
                 bool overlap = false;
-                if (dvi == src_vi) {
-                    for (int j = 0; j < (int)vehs[dvi].routes.size(); j++) {
-                        if (j == dri || j == src_ri) continue;
-                        if (routes_time_overlap(dst_trial, vehs[dvi].routes[j])) { overlap = true; break; }
+                if (dvi == src_vi)
+                {
+                    for (int j = 0; j < (int)vehs[dvi].routes.size(); j++)
+                    {
+                        if (j == dri || j == src_ri)
+                            continue;
+                        if (routes_time_overlap(dst_trial, vehs[dvi].routes[j]))
+                        {
+                            overlap = true;
+                            break;
+                        }
                     }
-                    if (!overlap) overlap = routes_time_overlap(dst_trial, src_without);
-                } else {
+                    if (!overlap)
+                        overlap = routes_time_overlap(dst_trial, src_without);
+                }
+                else
+                {
                     overlap = would_overlap(vehs[dvi].routes, dri, dst_trial);
                 }
-                if (overlap) continue;
+                if (overlap)
+                    continue;
                 double net = src_gain - delta;
                 if (net > best_net)
                 {
@@ -909,49 +943,57 @@ static bool swap_pass(vector<Employee> &emps, vector<Vehicle> &vehs,
         const string &id_a = routed[ai].emp_id;
         int avi = routed[ai].vi, ari = routed[ai].ri;
         const Employee *emp_a = find_emp_c(emps, id_a);
-        if (!emp_a) continue;
+        if (!emp_a)
+            continue;
 
         // Route A with emp_a removed
         Route route_a_without = vehs[avi].routes[ari];
         if (!remove_from_route(route_a_without, vehs[avi], id_a, by_id))
             continue;
-        double cost_a_orig    = vehs[avi].routes[ari].total_cost;
+        double cost_a_orig = vehs[avi].routes[ari].total_cost;
         double cost_a_without = route_a_without.total_cost;
 
-        double best_net = 1e-6;   // must strictly improve to commit
-        int    best_bvi = -1, best_bri = -1;
-        Route  best_route_a, best_route_b;
+        double best_net = 1e-6; // must strictly improve to commit
+        int best_bvi = -1, best_bri = -1;
+        Route best_route_a, best_route_b;
 
         for (int bi = 0; bi < (int)routed.size(); bi++)
         {
-            if (bi == ai) continue;
+            if (bi == ai)
+                continue;
             const string &id_b = routed[bi].emp_id;
             int bvi = routed[bi].vi, bri = routed[bi].ri;
-            if (bvi == avi && bri == ari) continue;   // must be a different route
+            if (bvi == avi && bri == ari)
+                continue; // must be a different route
 
             const Employee *emp_b = find_emp_c(emps, id_b);
-            if (!emp_b) continue;
+            if (!emp_b)
+                continue;
 
             // Cross-vehicle compatibility: B must fit in A's vehicle and vice versa
-            if (!vehicle_ok(vehs[avi], *emp_b)) continue;
-            if (!vehicle_ok(vehs[bvi], *emp_a)) continue;
+            if (!vehicle_ok(vehs[avi], *emp_b))
+                continue;
+            if (!vehicle_ok(vehs[bvi], *emp_a))
+                continue;
 
             // Route B with emp_b removed
             Route route_b_without = vehs[bvi].routes[bri];
             if (!remove_from_route(route_b_without, vehs[bvi], id_b, by_id))
                 continue;
-            double cost_b_orig    = vehs[bvi].routes[bri].total_cost;
+            double cost_b_orig = vehs[bvi].routes[bri].total_cost;
             double cost_b_without = route_b_without.total_cost;
 
             // Try inserting B into A's (now vacated) route
             Route route_a_with_b = route_a_without;
             double delta_b_into_a = best_insert(route_a_with_b, vehs[avi], *emp_b, by_id);
-            if (!std::isfinite(delta_b_into_a)) continue;
+            if (!std::isfinite(delta_b_into_a))
+                continue;
 
             // Try inserting A into B's (now vacated) route
             Route route_b_with_a = route_b_without;
             double delta_a_into_b = best_insert(route_b_with_a, vehs[bvi], *emp_a, by_id);
-            if (!std::isfinite(delta_a_into_b)) continue;
+            if (!std::isfinite(delta_a_into_b))
+                continue;
 
             // Net gain across both routes
             double saving_a = cost_a_orig - cost_a_without;
@@ -962,23 +1004,32 @@ static bool swap_pass(vector<Employee> &emps, vector<Vehicle> &vehs,
             {
                 // Verify neither modified route overlaps a sibling trip on its vehicle.
                 bool overlap_a = false, overlap_b = false;
-                if (avi == bvi) {
+                if (avi == bvi)
+                {
                     // Same vehicle: compare the two modified routes against each other
                     // and against all other routes on that vehicle.
-                    if (routes_time_overlap(route_a_with_b, route_b_with_a)) overlap_a = true;
-                    for (int j = 0; j < (int)vehs[avi].routes.size() && !overlap_a; j++) {
-                        if (j == ari || j == bri) continue;
-                        if (routes_time_overlap(route_a_with_b, vehs[avi].routes[j])) overlap_a = true;
-                        if (routes_time_overlap(route_b_with_a, vehs[avi].routes[j])) overlap_b = true;
+                    if (routes_time_overlap(route_a_with_b, route_b_with_a))
+                        overlap_a = true;
+                    for (int j = 0; j < (int)vehs[avi].routes.size() && !overlap_a; j++)
+                    {
+                        if (j == ari || j == bri)
+                            continue;
+                        if (routes_time_overlap(route_a_with_b, vehs[avi].routes[j]))
+                            overlap_a = true;
+                        if (routes_time_overlap(route_b_with_a, vehs[avi].routes[j]))
+                            overlap_b = true;
                     }
-                } else {
+                }
+                else
+                {
                     overlap_a = would_overlap(vehs[avi].routes, ari, route_a_with_b);
                     overlap_b = would_overlap(vehs[bvi].routes, bri, route_b_with_a);
                 }
-                if (overlap_a || overlap_b) continue;
-                best_net     = net;
-                best_bvi     = bvi;
-                best_bri     = bri;
+                if (overlap_a || overlap_b)
+                    continue;
+                best_net = net;
+                best_bvi = bvi;
+                best_bri = bri;
                 best_route_a = route_a_with_b;
                 best_route_b = route_b_with_a;
             }
@@ -986,8 +1037,8 @@ static bool swap_pass(vector<Employee> &emps, vector<Vehicle> &vehs,
 
         if (best_bvi != -1)
         {
-            vehs[avi].routes[ari]            = std::move(best_route_a);
-            vehs[best_bvi].routes[best_bri]  = std::move(best_route_b);
+            vehs[avi].routes[ari] = std::move(best_route_a);
+            vehs[best_bvi].routes[best_bri] = std::move(best_route_b);
             refresh_vehicle(vehs[avi]);
             refresh_vehicle(vehs[best_bvi]);
             return true;
@@ -999,7 +1050,10 @@ static bool swap_pass(vector<Employee> &emps, vector<Vehicle> &vehs,
 static bool or_opt_pass(vector<Employee> &emps, vector<Vehicle> &vehs,
                         int chain_len, std::mt19937 &rng, const EmpLookup &by_id)
 {
-    struct RouteRef { int vi, ri; };
+    struct RouteRef
+    {
+        int vi, ri;
+    };
     vector<RouteRef> refs;
     for (int vi = 0; vi < (int)vehs.size(); vi++)
         for (int ri = 0; ri < (int)vehs[vi].routes.size(); ri++)
@@ -1052,11 +1106,14 @@ static bool or_opt_pass(vector<Employee> &emps, vector<Vehicle> &vehs,
                         {
                             // Check no temporal overlap is introduced
                             bool ok = !would_overlap(vehs[dvi].routes, dri, dst_trial);
-                            if (ok && svi == dvi) {
+                            if (ok && svi == dvi)
+                            {
                                 // Also check src_trial vs dst_trial (same vehicle)
-                                if (routes_time_overlap(src_trial, dst_trial)) ok = false;
+                                if (routes_time_overlap(src_trial, dst_trial))
+                                    ok = false;
                             }
-                            if (!ok) continue;
+                            if (!ok)
+                                continue;
                             src = src_trial;
                             dst = dst_trial;
                             refresh_vehicle(vehs[svi]);
@@ -1081,13 +1138,19 @@ static void local_search(vector<Employee> &emps, vector<Vehicle> &vehs,
 
     int passes = deep ? 5 : 2;
     for (int p = 0; p < passes; p++)
-        while (relocate_pass(emps, vehs, rng, by_id)) {}
+        while (relocate_pass(emps, vehs, rng, by_id))
+        {
+        }
 
     // Swap: exchange employees between routes — finds improvements relocate cannot
-    while (swap_pass(emps, vehs, rng, by_id)) {}
+    while (swap_pass(emps, vehs, rng, by_id))
+    {
+    }
 
     for (int cl = 1; cl <= 3; cl++)
-        while (or_opt_pass(emps, vehs, cl, rng, by_id)) {}
+        while (or_opt_pass(emps, vehs, cl, rng, by_id))
+        {
+        }
 
     for (auto &v : vehs)
         refresh_vehicle(v);
@@ -1301,13 +1364,13 @@ static double run_alns_once(vector<Employee> &employees, vector<Vehicle> &vehicl
     EmpLookup final_lookup = build_lookup(best_emps);
     local_search(best_emps, best_vehs, rng, /*deep=*/true, final_lookup);
 
-    best_score = score(best_emps, best_vehs);  // refresh after LS
+    best_score = score(best_emps, best_vehs); // refresh after LS
 
     if (debug)
         std::cout << "[ALNS] After final LS: " << best_score << "\n";
 
     employees = std::move(best_emps);
-    vehicles  = std::move(best_vehs);
+    vehicles = std::move(best_vehs);
     return best_score;
 }
 
@@ -1322,12 +1385,12 @@ void run_alns(vector<Employee> &employees, vector<Vehicle> &vehicles,
 {
     std::random_device rd;
 
-    double        best_score = std::numeric_limits<double>::infinity();
+    double best_score = std::numeric_limits<double>::infinity();
     vector<Employee> best_emps;
-    vector<Vehicle>  best_vehs;
+    vector<Vehicle> best_vehs;
 
     std::cout << "\n[ALNS] " << cfg.n_runs << " independent run(s) × "
-              << cfg.iterations << " iterations (early-stop=" 
+              << cfg.iterations << " iterations (early-stop="
               << cfg.no_improve_stop << ")\n";
 
     for (int run = 0; run < cfg.n_runs; run++)
@@ -1351,8 +1414,8 @@ void run_alns(vector<Employee> &employees, vector<Vehicle> &vehicles,
         if (run_score < best_score)
         {
             best_score = run_score;
-            best_emps  = trial_emps;
-            best_vehs  = trial_vehs;
+            best_emps = trial_emps;
+            best_vehs = trial_vehs;
             std::cout << "  *** new best ***";
         }
         std::cout << "\n";
@@ -1361,5 +1424,5 @@ void run_alns(vector<Employee> &employees, vector<Vehicle> &vehicles,
     std::cout << "[ALNS] Best score across all runs: " << best_score << "\n";
 
     employees = std::move(best_emps);
-    vehicles  = std::move(best_vehs);
+    vehicles = std::move(best_vehs);
 }
