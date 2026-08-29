@@ -8,10 +8,10 @@ The project is structured into three distinct approaches/models, each located in
 
 - **`optimization-All_constarint/`**: 
   Contains the solver model that enforces all constraints strictly.
-  
+
 - **`optimization-Hybrid_final/`**: 
   Contains the final, refined hybrid optimization approach combining static routing and dynamic insertion capabilities.
-  
+
 - **`optimization-No_Constraint/`**: 
   Contains a baseline or relaxed model evaluating routing without strict constraints.
 
@@ -39,10 +39,16 @@ cmake --build build -j
 
 ### Running the Solver
 After building, the executables will be available in the `build/` directory of the respective project.
+
 Example:
 ```bash
 .\build\velora.exe .\testcases\TC04.json .\results\TC04_output.json
 ```
 
+### Documentation
+
+Detailed documentation covering the project overview, models, constraints, data formats, architecture, and algorithms is available in the `docs/` directory.
+
 ---
-*For more specific details, please check the individual `README.md` files (if available) within each respective optimization directory.*
+
+*For more specific details, please refer to the documentation within each respective optimization directory.*
